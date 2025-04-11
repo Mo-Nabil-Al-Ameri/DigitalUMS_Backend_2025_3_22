@@ -1,7 +1,5 @@
-from textwrap import indent
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from universityApps.core import numbering
 from universityApps.core.numbering.department import DepartmentNumbering
 from .utils import (
     department_image_path,
@@ -27,6 +25,13 @@ class Department(models.Model):
         max_length=255,
         unique=True,
         verbose_name='Department Code',
+    )
+    head=models.ForeignKey(
+        'users.FacultyMember',
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name='Department Head',
+        help_text='Head of the department',
     )
     name = models.CharField(
         help_text='Full name of the department',
@@ -77,11 +82,12 @@ class Department(models.Model):
     class Meta:
         verbose_name = 'Department'
         verbose_name_plural = 'Departments'
-        ordering = ['code', 'dept_no', 'name','college']
+        ordering = ['code', 'dept_no', 'name','college','type']
         indexes = [
             models.Index(fields=['dept_no', 'name'], name='department_dept_no_name_idx'),
             models.Index(fields=['college'], name='department_college_idx'),
             models.Index(fields=['code'], name='department_code_idx'),
+            models.Index(fields=['department_type'], name='department_type_index'),
         ]
     def save(self, *args, **kwargs):
         numbering = DepartmentNumbering()
@@ -95,6 +101,8 @@ class Department(models.Model):
                 # نمرر الاسم للقسم الإداري
                 self.dep_no = numbering.generate_dep_no(type=self.type)
         super().save(*args, **kwargs)
-
+    def is_head(self, faculty_member):
+        # Check if the given faculty member is the head of the department
+        return self.head == faculty_member
     def __str__(self):
         return f"{str(self.dep_no).zfill(4)} – {self.name}"
