@@ -8,13 +8,23 @@ class College(models.Model):
         primary_key=True,
         verbose_name=_("College Number"),
         editable=False
-        
     )
+    university=models.ForeignKey(
+        "core.University",
+        on_delete=models.CASCADE,verbose_name=_("University")
+        )
     code = models.CharField(
         unique=True,
         verbose_name=_("College Code"),
         editable=False,  # لمنع التعديل اليدوي
         help_text=_("code (automatically generated from name")
+    )
+    dean=models.ForeignKey(
+        "users.FacultyMember",
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name=_("Dean"),
+        help_text=_("Dean of the college")
     )
     name = models.CharField(
         max_length=255,
@@ -45,7 +55,9 @@ class College(models.Model):
             self.code = numbering.generate_code(self.name)
         super().save(*args, **kwargs)
 
-
+    def is_dean(self, faculty_member):
+        # check if the given faculty member is the dean of this college
+        return self.dean == faculty_member
     def __str__(self):
         return  f" {self.code}-{self.name}"
 
