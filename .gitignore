@@ -1,0 +1,65 @@
+# ==================
+# Python
+# ==================
+
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.so
+*.egg-info/
+.eggs/
+*.log
+
+# ==================
+# Virtual Environment
+# ==================
+
+env/
+venv/
+ENV/
+.venv/
+
+# ==================
+# Django
+# ==================
+
+db.sqlite3
+/media/
+/staticfiles/
+/*.sqlite3
+
+# ==================
+# VSCode Editor
+# ==================
+
+.vscode/
+*.code-workspace
+
+# ==================
+# Docker
+# ==================
+
+*.pid
+*.seed
+*.bak
+*.tmp
+
+# Local docker volumes or environment overrides
+.env
+docker-compose.override.yml
+
+# ==================
+# OS Generated Files
+# ==================
+
+.DS_Store
+Thumbs.db
+
+# ==================
+# Migrations (اختياري)
+# ==================
+# إذا كنت تفضل عدم تتبع ملفات التهجير:
+# **/migrations/
+# !**/migrations/__init__.py
