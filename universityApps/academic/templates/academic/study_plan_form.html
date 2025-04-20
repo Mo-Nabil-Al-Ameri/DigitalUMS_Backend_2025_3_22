@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load static %}
+{% load form_tags %}
+
+{% block title %}إدخال خطة دراسية{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h4 class="">إدخال خطة دراسية جديدة 📚</h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+
+                <h5 class="section-title">معلومات الخطة الدراسية</h5>
+                <div class="row">
+                    {% for field in study_form %}
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field|add_class:"input-style" }}
+                            {% if field.errors %}
+                                <div class="text-danger small">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <hr>
+                <h5 class="section-title">الفصول الدراسية</h5>
+                {{ semester_formset.management_form }}
+                <div id="semester-forms">
+                    {% for form in semester_formset %}
+                        <div class="border p-3 mb-4 semester-form bg-light" data-index="{{ forloop.counter0 }}">
+                            <h6 class="text-secondary">الفصل رقم {{ forloop.counter }}</h6>
+                            <div class="row">
+                                {% for field in form.visible_fields %}
+                                    <div class="col-md-6 mb-2">
+                                        <label class="form-label">{{ field.label }}</label>
+                                        {{ field|add_class:"input-style" }}
+                                        {% if field.errors %}
+                                            <div class="text-danger small">{{ field.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <div id="course-forms-{{ forloop.counter0 }}"></div>
+
+                            <button type="button" class="filled-button mt-3 add-course" data-target="{{ forloop.counter0 }}">➕ إضافة مقرر</button>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="filled-button w-100 mt-4">💾 حفظ الخطة الدراسية</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ar.js"></script>
+
+<script>
+    $(function () {
+        $(document).on("click", ".add-course", function () {
+            const target = $(this).data("target");
+            const container = $("#course-forms-" + target);
+            const index = container.children().length;
+
+            const form = `
+                <div class="border p-2 rounded bg-white shadow-sm mb-2">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <label class="form-label">المقرر</label>
+                            <select name="courses-${target}-${index}-course" class="input-style">
+                                {% for course in courses %}
+                                    <option value="{{ course.id }}">{{ course.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">مطلوب؟</label><br>
+                            <input type="checkbox" name="courses-${target}-${index}-is_required" class="input-style">
+
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <a href="{% url 'course_create' %}" target="_blank" class="filled-button btn-sm">➕ جديد</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.append(form);
+        });
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        flatpickr(".flatpickr", {
+            dateFormat: "Y-m-d",
+            locale: "{{ LANGUAGE_CODE }}"
+        });
+    });
+</script>
+{% endblock %}
