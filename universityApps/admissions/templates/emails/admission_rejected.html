@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>رفض الطلب</title>
+</head>
+<body style="font-family: 'Cairo', sans-serif; direction: rtl;">
+  <h2>مرحبًا {{ full_name }}،</h2>
+  <p>نشكرك على تقديم طلبك للالتحاق ببرنامج <strong>{{ program_name }}</strong>.</p>
+
+  <p>نأسف لإبلاغك بأن طلبك لم يتم قبوله حاليًا.</p>
+
+  {% if reason %}
+    <p>📝 سبب الرفض: <strong>{{ reason }}</strong></p>
+  {% endif %}
+
+  <p>نتمنى لك التوفيق في فرص قادمة.</p>
+  <hr>
+  <small>فريق القبول - جامعة المستقبل</small>
+</body>
+</html>
