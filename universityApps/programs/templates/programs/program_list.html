@@ -1,0 +1,24 @@
+
+{% extends "base.html" %}
+{% block title %}البرامج الأكاديمية{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h3 class="mb-4 text-primary">جميع البرامج الأكاديمية</h3>
+    <div class="row">
+        {% for program in programs %}
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ program.name }}</h5>
+                    <p class="card-text">{{ program.description|default:"لا يوجد وصف." }}</p>
+                    <a href="{% url 'program_detail' program.id %}" class="btn btn-outline-primary btn-sm">عرض التفاصيل</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>لا توجد برامج حالياً.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -16,68 +16,66 @@ class Department(models.Model):
         editable=False,
         primary_key=True,
         serialize=False,
-        verbose_name='Department Number',
-        index=True
+        verbose_name=_('Department Number'),
+        db_index=True
     )
     code = models.CharField(
         editable=False,
-        help_text='Unique CODE for the department based on name',
+        help_text=_('Code (automatically generated from name)'),    
         max_length=255,
         unique=True,
-        verbose_name='Department Code',
+        verbose_name=_('Department Code'),
     )
     head=models.ForeignKey(
         'users.FacultyMember',
         on_delete=models.SET_NULL,
         null=True,
-        verbose_name='Department Head',
-        help_text='Head of the department',
+        blank=True,
+        related_name='department_head',
+        verbose_name=_('Head of the Department'),
+        help_text=_('Head of the department'),
     )
     name = models.CharField(
-        help_text='Full name of the department',
+        help_text=_('Name of the department'),
         max_length=255,
-        verbose_name='Department Name',
-        help_text='Name of the department',
+        verbose_name=_('Department Name'),
     )
     description = models.TextField(
         blank=True,
-        help_text='Detailed description of the department',
+        help_text=_('Description of the department'),
         null=True,
         verbose_name='Department Description',
-        help_text='Description of the department',
     )
     type = models.CharField(
         choices=DepartmentType.choices,
-        default=DepartmentType.ACADEMIC,
-        help_text='Type of the department',
         max_length=255,
-        verbose_name='Department Type',
-        help_text='Type of the department',
+        verbose_name=_('Department Type'),
+        help_text=_('Type of the department'),
     )
     image = models.ImageField(
         blank=True,
         null=True,  
         upload_to=department_image_path,
-        verbose_name='Department Image',
-        help_text='Image of the department',
+        verbose_name=_('Department Image'),
+        help_text=_('Image of the department'),
     )
-    college = models.ForeignKey(
+    college = models.OneToOneField(
         'colleges.College',
         on_delete=models.CASCADE,
-        verbose_name='College',
-        help_text='College of the department',
+        verbose_name=_('College'),
+        help_text=_('College to which the department belongs'),
     )
     depaertment_message = models.TextField(
         blank=True,
         null=True,
-        verbose_name='Department Message',  
-        help_text='Message of the department',
-    )
+        verbose_name=_('Department Message'),
+        help_text=_('Message to be displayed on the department page'),
+        )
     department_vision = models.TextField(
         blank=True,
         null=True,
-        verbose_name='Department Vision',
-        help_text='Vision of the department',
+        verbose_name=_('Department Vision'),
+        help_text=_('Vision of the department'),
     )
     class Meta:
         verbose_name = 'Department'
@@ -87,7 +85,7 @@ class Department(models.Model):
             models.Index(fields=['dept_no', 'name'], name='department_dept_no_name_idx'),
             models.Index(fields=['college'], name='department_college_idx'),
             models.Index(fields=['code'], name='department_code_idx'),
-            models.Index(fields=['department_type'], name='department_type_index'),
+            models.Index(fields=['type'], name='department_type_index'),
         ]
     def save(self, *args, **kwargs):
         numbering = DepartmentNumbering()
@@ -95,14 +93,14 @@ class Department(models.Model):
             if not self.code and self.name:
                 self.code = numbering.generate_code(self.name, self.type)
             if self.type == self.DepartmentType.ACADEMIC and self.college:
-                self.dep_no = numbering.generate_dep_no(college_id=self.college.college_no, type=self.type)
+                self.dept_no = numbering.generate_dept_no(college_id=self.college.college_no, type=self.type)
             else:
                 
                 # نمرر الاسم للقسم الإداري
-                self.dep_no = numbering.generate_dep_no(type=self.type)
+                self.dept_no = numbering.generate_dept_no(type=self.type)
         super().save(*args, **kwargs)
     def is_head(self, faculty_member):
         # Check if the given faculty member is the head of the department
         return self.head == faculty_member
     def __str__(self):
-        return f"{str(self.dep_no).zfill(4)} – {self.name}"
+        return f"{str(self.dept_no).zfill(4)} – {self.name}"

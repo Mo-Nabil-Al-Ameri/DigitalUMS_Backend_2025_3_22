@@ -37,7 +37,7 @@ class BaseNumberingSystem:
         if self.pattern == NumberingPattern.NUMERIC:
             return self._generate_numeric(model_class)
 
-        elif self.pattern == NumberingPattern.numeric2:
+        elif self.pattern == NumberingPattern.AdministrativedepartNumber:
             return self.generate_Admindepartmentnumber(model_class)
         elif self.pattern == NumberingPattern.ALPHA:
             return self._generate_alpha(model_class)

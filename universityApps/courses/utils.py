@@ -4,19 +4,41 @@ import re
 from django.utils.text import slugify
 from django.utils.translation import get_language
 from django.db.models import Q
+def generate_subject_code(model_class, instance, field_name='code', from_field='name', max_check=20, subject_type=None):
+    from universityApps.courses.models import Subject_Types
 
-def generate_unique_code(model_class, instance, field_name='code', from_field='name', max_check=100):
+    """Generate a repeatable code for a subject based on its type."""
+    raw_text = getattr(instance, from_field,)
+    raw_text=raw_text.strip()[:4]
+    base_code = slugify(raw_text).upper()
+    code = base_code
+    if subject_type is not None:
+        if subject_type == Subject_Types.UNIVERSITY:
+            code ="UMS"
+            return code
+        elif subject_type == Subject_Types.COLLEGE:
+            if not instance.college:
+                raise ValueError("Subject must be associated with a college.")
+            code =instance.college.code
+            return code
+        elif subject_type == Subject_Types.DEPARTMENT:
+            if not instance.department:
+                raise ValueError("Subject must be associated with a department.")
+            code =instance.department.code
+            return code
+        else :
+            return code
+    return base_code
+
+def generate_unique_code(model_class, instance, field_name='code', from_field='name', max_check=20):
     """
     توليد رمز (code) فريد بناءً على حقل آخر (الاسم عادة)، مع أداء متوازن.
     """
-    lang = get_language() or 'en'
     raw_text = getattr(instance, from_field,)
     
     raw_text=raw_text.strip()[:4]
-    if lang == 'ar':
-        base_code = slugify(raw_text, allow_unicode=True).upper()
-    else:
-        base_code = slugify(raw_text).upper()
+   
+    base_code = slugify(raw_text).upper()
 
     code = base_code
 

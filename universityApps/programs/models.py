@@ -5,6 +5,7 @@ from django.conf import settings
 from django.db.models import Sum
 from universityApps.courses.fields import OrderField
 from django.apps import apps
+from .utils import generate_program_no
 class StudySystem(models.TextChoices):
         FULL_TIME = 'Full_Time', _('Full Time')
         PART_TIME = 'Part_Time', _('Part Time')
@@ -21,7 +22,7 @@ class AcademicProgram(models.Model):
     program_no=models.IntegerField(
         editable=False, 
         unique=True,
-        index=True,
+        db_index=True,
         help_text=_('Unique numeric identifier for the program based on program\'s department'),
         verbose_name=_("Program Number"))
     code = models.CharField(
@@ -33,8 +34,10 @@ class AcademicProgram(models.Model):
     name = models.CharField(
         max_length=255,
         verbose_name=_("Program Name"),
-        help_text=_("Full name of the program")
+        help_text=_("Full name of the program"),
+        editable=False
     )
+
     description = models.TextField(
         blank=True,
         null=True,
@@ -88,7 +91,7 @@ class AcademicProgram(models.Model):
     )
     class Meta:
         verbose_name = _("Academic Program")
-        unique_together = ('department', 'degree_level')
+        unique_together = ['department', 'degree_level']
         verbose_name_plural = _("Academic Programs")
         ordering = ['code', 'program_no','degree_level']
         indexes = [
@@ -96,7 +99,15 @@ class AcademicProgram(models.Model):
              models.Index(fields=['department'], name='program_department_idx'),
              models.Index(fields=['degree_level'], name='program_degree_level_idx'),
         ]
-
+    def save(self, *args, **kwargs):
+        from universityApps.core.numbering.department import DepartmentNumbering
+        if not self.program_no:
+            self.program_no = DepartmentNumbering().generate_program_no(department_id=self.department.dept_no)
+        if not self.code:
+            self.code = f"{self.degree_level[0]}-{self.department.code}"
+        if not self.name:
+            self.name = f"{self.degree_level} in {self.department.name}"
+        super().save(*args, **kwargs)
     def __str__(self):
         return f"{self.code} - {self.name}"
 
@@ -107,6 +118,7 @@ class ProgramSettings(models.Model):
         AcademicProgram,
         on_delete=models.CASCADE,
         primary_key=True,
+        related_name='programsettings',
         verbose_name=_("Program"),
         help_text=_("Program to which the settings belong")
     )
@@ -156,9 +168,9 @@ class ProgramSettings(models.Model):
 
     #Graduation rquirement 
     min_cgpa_required = models.DecimalField(
-        max_digits=4,
+        max_digits=5,
         decimal_places=2,
-        default=1.5,
+        default=65.00,
         verbose_name=_("Minimum CGPA"),
         help_text=_("Minimum CGPA required to graduate")
     )
@@ -218,13 +230,12 @@ class AcademicLevel(models.Model):
         AcademicProgram,
         on_delete=models.CASCADE,
         verbose_name=_("Program"),
+        related_name='levels',
         help_text=_("Program to which the level belongs")
     )
-    level_number = OrderField(
-        unique=True,
-        blank=True,
-        editable=False,
-        for_fields=['program'],
+    level_number = models.PositiveSmallIntegerField(
+        verbose_name=_("Level Number"),
+        help_text=_("Level number within the program")
     )
     name = models.CharField(
         max_length=100,
@@ -232,6 +243,7 @@ class AcademicLevel(models.Model):
         help_text=_("Name of the level")
     )
     required_credits = models.PositiveSmallIntegerField(
+        default=65,
         verbose_name=_("Required Credits"),
         help_text=_("Required credits to complete this level")
     )
@@ -248,13 +260,13 @@ class AcademicLevel(models.Model):
         verbose_name = _("Academic Level")
         verbose_name_plural = _("Academic Levels")
         ordering = ['level_number', 'program']
-        unique_together = ('program', 'level_number')
+        unique_together =[ 'program', 'level_number']
         indexes = [
-            models.Index(fields=['program', 'level_number'], name='academic_level_program_level_number_idx'),
+            models.Index(fields=['program', 'level_number'], name='program_level_number_idx'),
         ]
 
     def __str__(self):
-        return f"{self.program.name} - {self.name} (Level {self.level_number})"
+        return f" {self.program.department.code} -{self.name}"
 
     #
     def clean(self):
@@ -285,9 +297,8 @@ class AcademicLevel(models.Model):
 
     def get_semesters(self):
         """get the semesters of this level"""
-        semesters=self.semester_plans.all().order_by('year','semester_type')
+        semesters=self.semester_plans.all().order_by('academic_level','semester_type')
         return semesters
-    
     def get_courses(self):
         """get all courses at this level"""
         from django.db.models import Prefetch

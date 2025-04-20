@@ -35,8 +35,6 @@ class CollegeNumbering:
             model_class=College,
             field='college_no'
         )
-        if  number < 10:
-            number = '10'  # Ensure minimum number is 10
         return system.format_number(number)
 
     def generate_code(self, name):

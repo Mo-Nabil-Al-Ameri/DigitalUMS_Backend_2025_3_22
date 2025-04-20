@@ -1,0 +1,91 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-03-22 03:53+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+#: .\project\settings\base.py:71
+msgid "English"
+msgstr ""
+
+#: .\project\settings\base.py:72
+msgid "Arabic"
+msgstr ""
+
+#: .\universityApps\colleges\models.py:13
+msgid "College Number"
+msgstr ""
+
+#: .\universityApps\colleges\models.py:19
+msgid "College Code"
+msgstr ""
+
+#: .\universityApps\colleges\models.py:21
+msgid "Unique numeric identifier for the college"
+msgstr ""
+
+#: .\universityApps\colleges\models.py:25
+msgid "College Name"
+msgstr ""
+
+#: .\universityApps\colleges\models.py:26
+msgid "Full name of the college"
+msgstr ""
+
+#: .\universityApps\colleges\models.py:31
+msgid "College Description"
+msgstr ""
+
+#: .\universityApps\colleges\models.py:32
+msgid "Detailed description of the college"
+msgstr ""
+
+#: .\universityApps\colleges\models.py:36
+msgid "College"
+msgstr ""
+
+#: .\universityApps\colleges\models.py:37
+msgid "Colleges"
+msgstr ""
+
+#: .\universityApps\colleges\models.py:55
+msgid "College name is required"
+msgstr ""
+
+#: .\universityApps\core\numbering\base.py:18
+msgid "Number must be integer or string"
+msgstr ""
+
+#: .\universityApps\core\numbering\base.py:24
+#: .\universityApps\core\numbering\base.py:43
+msgid "Invalid number format"
+msgstr ""
+
+#: .\universityApps\core\numbering\base.py:32
+msgid "Invalid prefix"
+msgstr ""
+
+#: .\universityApps\core\numbering\base.py:34
+msgid "Invalid suffix"
+msgstr ""
+
+#: .\universityApps\core\numbering\base.py:50
+msgid "Number must be an integer"
+msgstr ""
+
+#: .\universityApps\core\numbering\base.py:72
+msgid "Maximum sequence number reached"
+msgstr ""

@@ -20,7 +20,7 @@ env/
 venv/
 ENV/
 .venv/
-
+course_copy.txt
 # ==================
 # Django
 # ==================

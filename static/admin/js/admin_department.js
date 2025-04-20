@@ -5,10 +5,15 @@ document.addEventListener("DOMContentLoaded", function () {
     function toggleCollegeField() {
         if (!typeField || !collegeRow) return;
 
-        if (typeField.value === 'academic') {
-            collegeRow.style.display = 'block';
-        } else {
-            collegeRow.style.display = 'none';
+        switch (typeField.value) {
+            case 'academic':
+                collegeRow.style.display = 'block';
+                break;
+            case 'administrative':
+                collegeRow.style.display = 'none';
+                break;
+            default:
+                collegeRow.style.display = 'none';
         }
     }
 

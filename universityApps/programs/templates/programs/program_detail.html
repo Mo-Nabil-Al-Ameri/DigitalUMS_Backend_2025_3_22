@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}تفاصيل البرنامج الأكاديمي{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h3 class="text-primary">{{ program.name }}</h3>
+            <hr>
+            <p><strong>الوصف:</strong> {{ program.description|default:"لا يوجد وصف." }}</p>
+            <p><strong>الدرجة العلمية:</strong> {{ program.get_degree_level_display }}</p>
+            <p><strong>القسم:</strong> {{ program.department.name }}</p>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="text-secondary">المستويات الأكاديمية والفصول</h4>
+        <a href="{% url 'export_program_pdf' program.id %}" class="btn btn-outline-danger">
+            🖨️ تحميل كـ PDF
+        </a>
+    </div>
+
+    {% for level in program_levels %}
+    <div class="card border-start border-4 border-primary mb-4">
+        <div class="card-body">
+            <h5 class="card-title">🎓 المستوى {{ level.level_number }}: {{ level.name }}</h5>
+            <p class="card-text">📘 الساعات المطلوبة: {{ level.required_credits }}</p>
+
+            {% with semesters=level.get_semesters %}
+                {% if semesters %}
+                    {% for semester in semesters %}
+                        <div class="mt-4">
+                            <h6 class="text-primary">📘 {{ semester.get_semester_type_display }} - {{ semester.name }}</h6>
+                            {% if semester.semester_courses.all %}
+                                <ul class="list-group">
+                                    {% for course in semester.semester_courses.all %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        {{ course.code }} - {{ course.course.name }}
+                                        {% if not course.is_required %}
+                                        <span class="badge bg-warning text-dark">اختياري</span>
+                                        {% endif %}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-muted">لا توجد مقررات في هذا الفصل.</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">لا توجد فصول لهذا المستوى.</p>
+                {% endif %}
+            {% endwith %}
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">لا توجد مستويات حالياً.</p>
+    {% endfor %}
+</div>
+{% endblock %}

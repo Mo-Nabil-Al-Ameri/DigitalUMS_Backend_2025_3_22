@@ -29,6 +29,9 @@ urlpatterns = [
 urlpatterns += i18n_patterns(
     path('admin/', admin.site.urls),
     # path('university/', include('university.urls')),
+    path('courses/', include('universityApps.courses.urls')),
+    path('academic/', include('universityApps.academic.urls')),
+    path('programs/', include('universityApps.programs.urls')),
     prefix_default_language=FALSE ## Don't add language prefix for default language
 )
 

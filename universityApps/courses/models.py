@@ -1,4 +1,3 @@
-from argparse import OPTIONAL
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -10,10 +9,17 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from .fields import OrderField
 from .utils import (
+    generate_subject_code,
     generate_unique_code,
     generate_unique_slug,
     )
 User = get_user_model()
+class Subject_Types(models.TextChoices):
+    UNIVERSITY='university',_('university Requirements')
+    COLLEGE='college',_('college Requirements')
+    DEPARTMENT='department',_('department Requirements')
+    SPECIALIZATION='specialization',_('specialization Requirements')
+
 class Subject(models.Model):
     name = models.CharField(
         max_length=200,
@@ -29,11 +35,35 @@ class Subject(models.Model):
     )
     
     code = models.CharField(
-        unique=True,
         verbose_name=_("Subject Code"),
         max_length=50,
         help_text=_("Code of the subject"),
         editable=False,
+    )
+    type = models.CharField(
+        max_length=20,
+        default=Subject_Types.UNIVERSITY,
+        choices=Subject_Types.choices,
+        verbose_name=_("Subject Type"),
+        help_text=_("Type of the subject")
+    )
+    college = models.ForeignKey(
+        'colleges.College',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='college_subjects',
+        verbose_name=_("Subject's College"),
+        help_text=_("College to which the subject belongs")
+    )
+    department = models.ForeignKey(
+        'departments.Department',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='department_subjects',
+        verbose_name=_("Subject's Department"),
+        help_text=_("Department to which the subject belongs")
     )
 
     @property
@@ -52,16 +82,17 @@ class Subject(models.Model):
         return reverse("subject_detail", kwargs={"slug": self.slug})
     def save(self, *args, **kwargs):
         if not self.code:
-            self.code = generate_unique_code(
-                model=Subject,
+            self.code = generate_subject_code(
+                model_class=Subject,
                 instance=self,
                 from_field='name',
                 field_name='code',
-                max_check=20
+                max_check=20,
+                subject_type=self.type
             )
         if not self.slug:
             self.slug = generate_unique_slug(
-                model=Subject,
+                model_class=Subject,
                 instance=self,
                 slug_field_name='slug',
                 slug_from_fields=['code','name'],
@@ -78,11 +109,6 @@ class Course(models.Model):
        ELECTIVE = 'elective', _('elective')
        OPTIONAL = 'optional', _('optional')
 
-    class COURSE_GROUPS(models.TextChoices):
-        UNIVERSITY='university',_('university Requirements')
-        COLLEGE='college',_('college Requirements')
-        PROGRAM='program',_('program Requirements')
-        SPECIALIZATION='specialization',_('specialization Requirements')
 
     subject = models.ForeignKey(
         Subject,
@@ -103,29 +129,32 @@ class Course(models.Model):
         editable=False,
     )
     credits = models.PositiveSmallIntegerField(
+        default = 3,
         verbose_name=_("Credits"),
         validators=[MinValueValidator(1), MaxValueValidator(30)],
         help_text=_("Number of credits for the course"),
     )
     hours_lecture = models.PositiveSmallIntegerField(
+        default = 3,
         verbose_name=_("Lecture Hours"),
         validators=[MinValueValidator(1)],
         help_text=_("Number of lecture hours for the course"),
     )
     hours_lab = models.PositiveSmallIntegerField(
+        default = 0,
         verbose_name=_("Lab Hours"),
-        validators=[MinValueValidator(1)],
         help_text=_("Number of lab hours for the course"),
     )
     practice_hours = models.PositiveSmallIntegerField(
+        default = 0,
         verbose_name=_("Practice Hours"),
-        validators=[MinValueValidator(1)],
         help_text=_("Number of practice hours for the course"),
     )
     code = models.CharField(
+        blank=True,
+        null=True,
         unique=True,
         verbose_name=_("Course Code"),
-        max_length=50,
         help_text=_("Code of the course"),
         editable=False,
     )
@@ -137,14 +166,9 @@ class Course(models.Model):
         verbose_name=_("Course Type"),
         help_text=_("Type of the course")
     )
-    course_group = models.CharField(
-        max_length=20,
-        default=COURSE_GROUPS.UNIVERSITY,
-        choices=COURSE_GROUPS.choices,
-        verbose_name=_("Course Group"),
-        help_text=_("Group of the course")
-    )
     overview = models.TextField(
+        blank=True,
+        null=True,
         verbose_name=_("Overview"),
         help_text=_("Overview of the course")
     )
@@ -163,16 +187,6 @@ class Course(models.Model):
         verbose_name=_("Corequisites"),
         help_text=_("Corequisites for the course"),
         related_name='corequisite_for',
-    )
-    department = models.ForeignKey(
-        'departments.Department',
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        limit_choices_to={'type': 'academic'},
-        verbose_name=_("Department"),
-        help_text=_("Department of the course"),
-        related_name='department_courses',
     )
     is_active=models.BooleanField(
         default=True,
@@ -197,7 +211,8 @@ class Course(models.Model):
     )
     learning_outcomes = models.TextField(
         verbose_name=_("Learning Outcomes"),
-        help_text=_("Learning outcomes for the course")
+        help_text=_("Learning outcomes for the course"),
+        blank=True,
     )
     class Meta:
         verbose_name = _("Course")
@@ -208,28 +223,19 @@ class Course(models.Model):
             models.Index(fields=['course_type'], name='course_type_idx'),
             models.Index(fields=['subject'], name='course_subject_idx'),
             models.Index(fields=['slug'], name='course_slug_idx'),
-            models.Index(fields=['department','is_active'], name='course_department_idx'),
         ]
     def get_absolute_url(self):
         return reverse("course_detail", kwargs={"slug": self.slug})
     
     def __str__(self):
-        return f"{self.code} - {self.name}"
+        return f"{self.subject.code} - {self.name}"
     
     def clean(self):
         """ validate course data """
         super().clean()
-        if not self.code:
-            self.code = generate_unique_code(
-                model=Course,
-                instance=self,
-                field_name='code',
-                from_field=self.department.code,
-                max_check=50
-            )
         if not self.slug:
             self.slug = generate_unique_slug(
-                model=Course,
+                model_class=Course,
                 instance=self,
                 slug_field_name='slug',
                 slug_from_fields=['code','name'],
@@ -410,4 +416,3 @@ class Video(ItemBase):
 
     def is_video(self):
         return True
-# انشئ نموذج العلاقة بين الكورسات والبرامج الاكاديمية

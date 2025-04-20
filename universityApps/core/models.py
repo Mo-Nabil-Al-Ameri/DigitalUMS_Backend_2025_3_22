@@ -1,10 +1,10 @@
 from django.db import models
-
+from django.utils.translation import gettext_lazy as _
 class University(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("University Name"))
     description = models.TextField(blank=True, null=True, verbose_name=_("University Description"))
     code=models.CharField(
-        editable=False, 
+        editable=True, 
         help_text='Unique numeric identifier for the university', 
         unique=True, verbose_name='University Code',
         default='DUMS'

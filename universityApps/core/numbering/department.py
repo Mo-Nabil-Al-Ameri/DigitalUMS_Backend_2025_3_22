@@ -14,7 +14,7 @@ class DepartmentNumbering:
         global_preferences = global_preferences_registry.manager()
 
         # إعدادات رقم القسم
-        self.dep_no_config = {
+        self.dept_no_config = {
             'pattern': NumberingPattern(global_preferences['numbering__department_pattern']),
             'prefix': global_preferences['numbering__department_prefix'],
             'suffix': global_preferences['numbering__department_suffix'],
@@ -40,9 +40,9 @@ class DepartmentNumbering:
         self.admin_min = global_preferences['numbering__department_admin_min_number']
         self.admin_max = global_preferences['numbering__department_admin_max_number']
 
-    def generate_dep_no(self, college_id=None, type=None):
+    def generate_dept_no(self, college_id=None, type=None):
         from universityApps.departments.models import Department
-        system = BaseNumberingSystem(**self.dep_no_config)
+        system = BaseNumberingSystem(**self.dept_no_config)
 
         if type == 'academic' and college_id:
             system.min_value =  self.academic_min
@@ -51,7 +51,7 @@ class DepartmentNumbering:
                 model_class=Department,
                 parent_field='college',
                 parent_id=college_id,
-                field='dep_no'
+                field='dept_no'
             )
 
         elif type == 'administrative':
@@ -60,7 +60,7 @@ class DepartmentNumbering:
             system.max_value = self.admin_max    # 0999
             return system.generate_number(
                 model_class=Department,
-                field='dep_no',
+                field='dept_no',
                 filters={'type': 'administrative'}  # ✅ التصفية حسب النوع
             )
 
@@ -76,4 +76,13 @@ class DepartmentNumbering:
             field='code',
             academic_suffix=self.academic_suffix,
             admin_suffix=self.admin_suffix
+        )
+    def generate_program_no(self, department_id=None, type=None):
+        from universityApps.programs.models import AcademicProgram
+        system = BaseNumberingSystem(**self.dept_no_config)
+        return system.generate_number(
+            model_class=AcademicProgram,
+            parent_field='department',
+            parent_id=department_id,
+            field='program_no'
         )

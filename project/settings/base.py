@@ -26,7 +26,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # تطبيقات المشروع
+    # third-party apps
+    'dynamic_preferences',
+    'modeltranslation',
+
+    # تطبيقات المشروع   
+    'universityApps.users',
+    'universityApps.courses',
+    'universityApps.programs',
+    'universityApps.academic',
+    'universityApps.core',
+    'universityApps.departments',
+    'universityApps.colleges',
+    'universityApps.admissions',
     
 ]
 
@@ -45,7 +57,7 @@ MIDDLEWARE = [
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR.parent / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -62,14 +74,14 @@ ROOT_URLCONF = 'project.urls'
 WSGI_APPLICATION = 'project.wsgi.application'
 
 # إعدادات الترجمة واللغات
-LANGUAGE_CODE = 'en'  # Default language: English
+LANGUAGE_CODE = 'ar'  # Default language: English
 
 # إضافة اللغات المدعومة
 LANGUAGES = [
     ('en', _('English')),  # English first as default
     ('ar', _('Arabic')),   # Arabic second
 ]
-
+AUTH_USER_MODEL = 'users.User'
 # تمكين ميزة الترجمة
 USE_I18N = True
 

@@ -26,8 +26,8 @@ class OrderField(models.PositiveIntegerField):
                 latest_item =qs.latest(self.attname)
                 value = getattr(latest_item,self.attname) + 1
             except ObjectDoesNotExist:
-                value = 0
+                value = 1
             setattr(model_instance,self.attname,value)
             return value
         else:
-            super().pre_save(model_instance,add)
+            return super().pre_save(model_instance,add)

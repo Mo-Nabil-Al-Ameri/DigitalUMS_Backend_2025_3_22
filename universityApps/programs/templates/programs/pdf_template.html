@@ -1,0 +1,117 @@
+{% load index_filters %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: "DejaVu Sans", sans-serif;
+            font-size: 13px;
+            direction: rtl;
+            color: #000;
+            margin: 30px;
+        }
+        .logo { height: 70px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+        th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
+        th { background-color: #A12C2F; color: #fff; font-weight: normal; }
+        .section-title {
+            background-color: #A12C2F;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            margin: 30px 0 10px;
+            font-size: 14px;
+        }
+        .signature { text-align: left; margin-top: 50px; font-size: 15px; }
+    </style>
+</head>
+<body>
+
+<!-- الرأس -->
+<table>
+    <tr>
+        <td style="width: 35%; text-align: center; font-size: 14px; border: none;">
+            الجمهورية اليمنية<br>
+            وزارة التعليم العالي والبحث العلمي<br>
+            جامعة العلوم الحديثة<br>
+            كلية الهندسة وتكنولوجيا المعلومات<br>
+            قسم تصميم الجرافيك والملتميديا
+        </td>
+        <td style="width: 30%; text-align: center;border: none;">
+            <img src="{% static 'images/university-logo.png' %}" class="logo" alt="Logo">
+        </td>
+        <td style="width: 35%; text-align: center; font-size: 12px;border: none;">
+            Republic of Yemen<br>
+            Ministry of Higher Education & Scientific Research<br>
+            University of Modern Sciences<br>
+            Faculty of Engineering and Information Technology<br>
+            Department of Graphic Design and Multimedia
+        </td>
+    </tr>
+</table>
+
+
+{% for level in program_levels %}
+    <div class="section-title">المستوى {{ level.level_number }}</div>
+    {% with first=level.semesters.0 second=level.semesters.1 %}
+    <table>
+        <tr>
+            <th colspan="4" >الفصل الأول</th>
+            <thcolspan="1" ></th>
+            <th colspan="4">الفصل الثاني</th>
+        </tr>
+        <tr>
+            <th>م</th><th>الرمز</th><th>المقرر</th><th>الساعات</th>
+            <th>م</th><th>الرمز</th><th>المقرر</th><th>الساعات</th>
+        </tr>
+        {% for i in range8 %}
+        <tr>
+            {% with course1=first.semester_courses.all|index:i %}
+            {% if course1 %}
+                <td>{{ i|add:1 }}</td>
+                <td>{{ course1.code }}</td>
+                <td>{{ course1.course.name }}</td>
+                <td>{{ course1.course.credits }}</td>
+            {% else %}
+                <td></td><td></td><td></td><td></td>
+            {% endif %}
+            {% endwith %}
+
+            {% with course2=second.semester_courses.all|index:i %}
+            {% if course2 %}
+                <td>{{ i|add:1 }}</td>
+                <td>{{ course2.code }}</td>
+                <td>{{ course2.course.name }}</td>
+                <td>{{ course2.course.credits }}</td>
+            {% else %}
+                <td></td><td></td><td></td><td></td>
+            {% endif %}
+            {% endwith %}
+        </tr>
+        {% endfor %}
+    </table>
+    {% endwith %}
+{% endfor %}
+
+{% if electives %}
+<div class="section-title">المقررات الاختيارية</div>
+<table>
+    <tr><th>م</th><th>الرمز</th><th>اسم المقرر</th><th>الساعات</th></tr>
+    {% for course in electives %}
+    <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ course.code }}</td>
+        <td>{{ course.name }}</td>
+        <td>{{ course.credits }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+<p class="signature">عميد الكلية: .........................................</p>
+
+</body>
+</html>

@@ -8,6 +8,9 @@ from django.db.models import Sum
 from django.core.mail import send_mail
 import uuid
 from django.apps import apps
+from .utils import (
+     student_document_upload_path
+)
 class UserManager(BaseUserManager):
     #Custom user manager
     # use_in_migrations = True
@@ -36,17 +39,17 @@ class UserManager(BaseUserManager):
 
         return self._create_user(email, password, **extra_fields)
     
+class Roles(models.TextChoices):
+    ADMIN = 'admin', _('Admin')
+    STAFF = 'staff', _('Staff Member')
+    FACULTY = 'faculty', _('Faculty Member')
+    STUDENT = 'student', _('Student')
 
 
 class User(AbstractUser):
     """
     Default custom user model for universityApps.
     """
-    class Roles(models.TextChoices):
-        ADMIN = 'admin', _('Admin')
-        STAFF = 'staff', _('Staff')
-        FACULTY = 'faculty', _('Faculty Member')
-        STUDENT = 'student', _('Student')
     class GENDER_CHOICES(models.TextChoices):
         MALE = 'M', _('Male')
         FEMALE = 'F', _('Female')
@@ -119,7 +122,7 @@ class User(AbstractUser):
 
     #Relations with other applications
     department = models.ForeignKey(
-        apps.get_model('universityApps.departments', 'Department'),
+        'departments.Department',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -128,7 +131,7 @@ class User(AbstractUser):
     )
     
     college = models.ForeignKey(
-        apps.get_model('universityApps.colleges', 'College'),
+        'colleges.College',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -145,7 +148,7 @@ class User(AbstractUser):
     class Meta:
         verbose_name = _('User')
         verbose_name_plural = _('Users')
-        ordering = ('first_name','last_name')
+        ordering =[ 'first_name','last_name']
    
     def __str__(self):
         return f"{self.get_full_name()} ({self.role})"
@@ -169,91 +172,60 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
         self.assign_group_by_role()
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile', verbose_name=_("User"))
-    profile_picture = models.ImageField(upload_to='Users/Profile_Pics/%Y/%m/', blank=True, null=True)
-    bio = models.TextField(verbose_name=_("Biography"),blank=True, null=True)
-    website = models.URLField(blank=True, null=True)
-    social_media_links = models.JSONField(default=dict, verbose_name=_("Social Media Links"), blank=True, null=True)
-    timezone = models.CharField(max_length=50, verbose_name=_("Timezone"), blank=True, null=True)
-    avater =models.ImageField(upload_to='Users/Avatars/%Y/%m/', blank=True, null=True)
+# class UserProfile(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile', verbose_name=_("User"))
+#     profile_picture = models.ImageField(upload_to='Users/Profile_Pics/%Y/%m/', blank=True, null=True)
+#     bio = models.TextField(verbose_name=_("Biography"),blank=True, null=True)
+#     website = models.URLField(blank=True, null=True)
+#     social_media_links = models.JSONField(default=dict, verbose_name=_("Social Media Links"), blank=True, null=True)
+#     timezone = models.CharField(max_length=50, verbose_name=_("Timezone"), blank=True, null=True)
+#     avater =models.ImageField(upload_to='Users/Avatars/%Y/%m/', blank=True, null=True)
 
-    class Meta:
-        verbose_name = _("User Profile")
-        verbose_name_plural = _("User Profiles")
+#     class Meta:
+#         verbose_name = _("User Profile")
+#         verbose_name_plural = _("User Profiles")
     
-    def __str__(self):
-        return f"{self.user.get_full_name()}'s Profile"
+#     def __str__(self):
+#         return f"{self.user.get_full_name()}'s Profile"
 
 class Student(models.Model):
     class StudentStatus(models.TextChoices):
         ACTIVE = 'active', _('Active')
         GRADUTATED = 'graduated', _('Graduated')
         SUSPENDED = 'suspended', _('Suspended')
+        Dismissed = 'dismissed', _('Dismissed')
+    #User Account
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student', verbose_name=_("User"))
+    # Student Information
     student_id = models.CharField(max_length=20, verbose_name=_("Student ID"), unique=True)
     admission_date = models.DateField(verbose_name=_("Admission Date"), default=timezone.now,db_index=True)
-    place_of_birth= models.CharField(max_length=100, verbose_name=_("Place of Birth"), blank=True, null=True)
-    direcorate= models.CharField(max_length=100, verbose_name=_("Directorate"), blank=True, null=True)
     status= models.CharField(max_length=20, verbose_name=_("Status"), choices=StudentStatus.choices, default=StudentStatus.ACTIVE)
     secondary_phone_number = models.CharField(max_length=20, verbose_name=_("Secondary Phone Number"), blank=True, null=True)
+
+
+    place_of_birth= models.CharField(max_length=100, verbose_name=_("Place of Birth"), blank=True, null=True)
+    direcorate= models.CharField(max_length=100, verbose_name=_("Directorate"), blank=True, null=True)
     #qualification information
     previous_qualifications = models.TextField(verbose_name=_("Previous Qualifications"), blank=True, null=True)
-    q_average = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_("Qualification Average"), blank=True, null=True)
-    whereToGetit = models.CharField(max_length=100, verbose_name=_("Where To Get the Qualification"), blank=True, null=True)
+    qualification_average  = models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_("Qualification Average"), blank=True, null=True)
+    qualification_institution  = models.CharField(max_length=100, verbose_name=_("Where To Get the Qualification"), blank=True, null=True)
     date_obtained = models.DateField(verbose_name=_("Date Obtained"), blank=True, null=True)
-    q_file = models.FileField(upload_to='Students/Qualifications/%Y/%m/', verbose_name=_("Qualification File"), blank=True, null=True)
 
     #academic information
-    program = models.ForeignKey(
-        apps.get_model('universityApps.programs', 'AcademicProgram'),
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='program_students',
-        verbose_name=_('Program')
-    )
-    department = models.ForeignKey(
-        apps.get_model('universityApps.departments', 'Department'),
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='department_students',
-        verbose_name=_('Department')
-    )
+    program = models.ForeignKey('programs.AcademicProgram',on_delete=models.SET_NULL,null=True,blank=True,related_name='program_students',verbose_name=_('Program'))
+    department = models.ForeignKey('departments.Department',on_delete=models.SET_NULL,null=True,blank=True,related_name='department_students',verbose_name=_('Department'))
 
     cgpa=models.DecimalField(max_digits=5, decimal_places=2, verbose_name=_("CGPA"), default=0.00,db_index=True)
-
-    total_credits_earned = models.PositiveSmallIntegerField(
-        verbose_name=_("Total Credits Earned"),
-          default=0,
-          )
-    #extra information
-    emergency_contact_name = models.CharField(
-        _('Emergency Contact Name'),
-        max_length=100,
-        blank=True,
-        null=True
-    )
-    
-    emergency_contact_phone = models.CharField(
-        _('Emergency Contact Phone'),
-        max_length=17,
-        blank=True,
-        null=True
-    )
-    
-    emergency_contact_relationship = models.CharField(
-        _('Emergency Contact Relationship'),
-        max_length=50,
-        blank=True,
-        null=True
-    )
+    total_credits_earned = models.PositiveSmallIntegerField(verbose_name=_("Total Credits Earned"),default=0,)
+    #Emergency Contact Information
+    emergency_contact_name = models.CharField(_('Emergency Contact Name'),max_length=100,blank=True,null=True)
+    emergency_contact_phone = models.CharField(_('Emergency Contact Phone'),max_length=17,blank=True,null=True)
+    emergency_contact_relationship = models.CharField(_('Emergency Contact Relationship'),max_length=50,blank=True,null=True)
 
     class Meta:
         verbose_name = _("Student")
         verbose_name_plural = _("Students")
-        ordering = ('student_id',)
+        ordering = ['student_id',]
         indexes = [
             models.Index(fields=['student_id'], name='student_student_id_idx'),
             models.Index(fields=['status'], name='student_status_idx'),
@@ -263,7 +235,7 @@ class Student(models.Model):
     
     def upadate_cgpa(self):
         """ update cgpa of student """
-        StudentsGrade=models.get_model('universityApps.academic', 'StudentsGrade')
+        StudentsGrade=apps.get_model('universityApps.academic', 'StudentsGrade')
         #get all the student's grades
         grades=StudentsGrade.objects.filter(
             student=self,
@@ -303,6 +275,27 @@ class Student(models.Model):
         self.save(update_fields=['total_credits_earned'])
         return self.total_credits_earned
 
+class StudentDocument(models.Model):
+    class DocumentType(models.TextChoices):
+        NATIONAL_ID = 'national_id', _("National ID")
+        HIGH_SCHOOL = 'high_school', _("High School Certificate")
+        PERSONAL_PHOTO = 'photo', _("Personal Photo")
+        OTHER = 'other', _("Other")
+
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name='documents',
+        verbose_name=_("Student")
+    )
+    document_type = models.CharField(max_length=50, choices=DocumentType.choices, verbose_name=_("Document Type"))
+    title = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Document Title"))
+    file = models.FileField(upload_to=student_document_upload_path, verbose_name=_("File"))
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.get_document_type_display()} - {self.student.user.get_full_name()}"
+
 
 class FacultyMember(models.Model):
     class FACULTY_STATUS(models.TextChoices):
@@ -325,6 +318,7 @@ class FacultyMember(models.Model):
         User,
         on_delete=models.CASCADE,
         primary_key=True,
+        related_name='faculty',
         verbose_name=_("User"),
         help_text=_("User to which the faculty member belongs")
     )
@@ -346,7 +340,7 @@ class FacultyMember(models.Model):
     )
 
     department = models.ForeignKey(
-        apps.get_model('universityApps.departments', 'Department'),
+        'departments.Department',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -375,7 +369,7 @@ class FacultyMember(models.Model):
     class Meta:
         verbose_name = _("Faculty Member")
         verbose_name_plural = _("Faculty Members")
-        ordering = (' Faculty_id',)
+        ordering = ['Faculty_id',]
         indexes = [
             models.Index(fields=['Faculty_id'], name='faculty_Faculty_id_idx'),
             models.Index(fields=['status'], name='faculty_status_idx'),
@@ -385,11 +379,145 @@ class FacultyMember(models.Model):
         return f"{self.get_rank_display()} {self.user.get_full_name()}'s {self.Faculty_id}"
     
     def is_department_head(self):
+        """ Check if the faculty member is the department head """
         if not self.department:
             return False
         return self.department.head == self
     
     def is_college_dean(self):
+        """ Check if the faculty member is the college dean """
         if not self.department or not self.department.college:
             return False
         return self.department.college.dean == self
+
+
+class StaffMember(models.Model):
+    class stauff_status(models.TextChoices):
+        ACTIVE = 'active', _('Active')
+        ON_LEAVE = 'on_leave', _('On Leave')
+        Terminated = 'terminated', _('Terminated')
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        primary_key=True,
+        verbose_name=_("User"),
+        help_text=_("User to which the staff member belongs")
+    )
+    stuff_id=models.CharField(max_length=30, verbose_name=_("Stuff ID"), unique=True)
+    hire_date = models.DateField(verbose_name=_("Hire Date"), default=timezone.now)
+    status=models.CharField(
+        verbose_name=_("Status"),
+        choices=stauff_status.choices,
+        default=stauff_status.ACTIVE,
+        max_length=30,
+        help_text=_("Status of the staff member")
+    )
+    department = models.ForeignKey(
+        'departments.Department',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='staff_members',
+        verbose_name=_('Department')
+    )
+    job_title = models.CharField(
+        _('Job Title'),
+        max_length=200,
+        blank=True,
+        null=True
+    )
+    supervisor = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='member_supervisor',
+        verbose_name=_('Supervisor')
+    )    
+    class Meta:
+        verbose_name = _("Staff Member")
+        verbose_name_plural = _("Staff Members")
+        ordering = ['stuff_id']
+        indexes = [
+            models.Index(fields=['stuff_id'], name='staff_stuff_id_idx'),
+            models.Index(fields=['status'], name='staff_status_idx'),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.get_full_name()}'s {self.stuff_id}"
+
+class UserLog(models.Model):
+    """Model to log user login and logout times"""
+    class LogType(models.TextChoices):
+        LOGIN = 'login', _('Login')
+        LOGOUT = 'logout', _('Logout')
+        PASSWORD_CHANGE = 'password_change', _('Password Change')
+        PROFILE_UPDATE = 'profile_update', _('Profile Update')
+        ROLE_CHANGE = 'role_change', _('Role Change')
+        SATUS_CHANGE = 'status_change', _('Status Change')
+        OTHER = 'other', _('Other')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_("User"), help_text=_("User who logged in"),related_name='logs')
+    logtype=models.CharField(max_length=30, verbose_name=_("Log Type"), choices=LogType.choices, default=LogType.OTHER)
+    timestamp = models.DateTimeField(auto_now_add=True, verbose_name=_("Timestamp"), help_text=_("Time of the log"))
+    user_agent=models.TextField(verbose_name=_("User Agent"), help_text=_("User agent of the user") ,blank=True, null=True)
+    details=models.JSONField(verbose_name=_("Details"), help_text=_("Details of the log"), blank=True, null=True)
+
+    class Meta:
+        verbose_name = _("User Log")
+        verbose_name_plural = _("User Logs")
+        ordering = ['-timestamp',]
+
+    def __str__(self):
+        return f"{self.user.get_full_name()}'s {self.get_logtype_display()} at {self.timestamp}"
+
+class Notification(models.Model):
+    class NotificationType(models.TextChoices):
+        System = 'system', _('System')
+        Academic = 'academic', _('Academic')
+        Enrollement = 'enrollement', _('Enrollement')
+        Grade='grade', _('Grade')
+        Announcement='announcement', _('Announcement')
+        Message='message', _('Message')
+        Other = 'other', _('Other')
+    class NotificationPriority(models.TextChoices):
+        High = 'high', _('High')
+        Medium = 'medium', _('Medium')
+        Low = 'low', _('Low')  
+        Urgent = 'urgent', _('Urgent')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_("User"), help_text=_("User to which the notification belongs"),related_name='notifications')
+    title=models.CharField(max_length=200, verbose_name=_("Title"), help_text=_("Title of the notification"))
+    message=models.TextField(verbose_name=_("Message"), help_text=_("Message of the notification"))
+    notification_type=models.CharField(max_length=30, verbose_name=_("Type"), choices=NotificationType.choices, default=NotificationType.Other)
+    priority=models.CharField(max_length=30, verbose_name=_("Priority"), choices=NotificationPriority.choices, default=NotificationPriority.Medium)
+    created_at=models.DateTimeField(auto_now_add=True, verbose_name=_("Created At"), help_text=_("Time when the notification was created"))
+    read = models.BooleanField(default=False, verbose_name=_("Read"), help_text=_("Whether the notification has been read"))
+    read_at = models.DateTimeField(null=True, blank=True, verbose_name=_("Read At"), help_text=_("Time when the notification was read"))
+    link = models.URLField(max_length=200, verbose_name=_("Link"), help_text=_("Link to the notification"), blank=True, null=True)
+    sender = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, verbose_name=_("Sender"), help_text=_("User who sent the notification"),related_name='sent_notifications')
+    timestamp = models.DateTimeField(auto_now_add=True, verbose_name=_("Timestamp"), help_text=_("Time of the notification"))
+
+    class Meta:
+        verbose_name = _("Notification")
+        verbose_name_plural = _("Notifications")
+        ordering = ['-created_at',]
+
+    def __str__(self):
+        return f"{self.user.get_full_name()}'s {self.title}"
+    
+    def mark_as_read(self):
+        """ Mark the notification as read """
+        if not self.read:
+            self.read = True
+            self.read_at = timezone.now()
+            self.save( update_fields=['read', 'read_at'])
+            return True
+        return False
+    
+    def mark_as_unread(self):
+        """ Mark the notification as unread """
+        if self.read:
+            self.read = False
+            self.read_at = None
+            self.save( update_fields=['read', 'read_at'])
+            return True
+        return False

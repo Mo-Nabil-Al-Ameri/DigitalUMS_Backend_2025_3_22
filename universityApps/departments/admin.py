@@ -11,7 +11,7 @@ class DepartmentAdminForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # الحالة 1: عند إنشاء قسم جديد
-        if not self.instance.pk:
+        if not self.instance.dept_no:
             self.fields['college'].required = False
 
         # الحالة 2: عند التعديل
@@ -33,12 +33,12 @@ class DepartmentAdminForm(forms.ModelForm):
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
     form = DepartmentAdminForm
-    list_display = ('dep_no','code','name','college', 'description','get_type_display')
+    list_display = ('formatted_dep_no','code','name','college', 'description','get_type_display')
     search_fields = ('formatted_dep_no','code','name','college', 'description','type')
     def formatted_dep_no(self, obj):
-        return str(obj.dep_no).zfill(4)
+        return str(obj.dept_no).zfill(4)
     formatted_dep_no.short_description = "Department No"
 
     class Media:
-        js = ('js/admin_department.js',)
+        js = ('admin/js/admin_department.js',)
 

@@ -3,11 +3,27 @@
 FROM python:3.13-slim-bullseye
 
 # 2: ضبط اعدادات البيئة 
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
 
 # 3: تحديث ال kernal و تثبيت المكتبات المطلوبة
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc libpq-dev \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    python3-dev \
+    python3-pip \
+    libcairo2 \
+    pango1.0-tools \
+    libpango1.0-0 \
+    libgdk-pixbuf2.0-0 \
+    libffi-dev \
+    libxml2 \
+    libxslt1.1 \
+    libjpeg-dev \
+    zlib1g-dev \
+    shared-mime-info \
+    fonts-liberation \
+    fonts-freefont-ttf \
+    fonts-dejavu \
     && rm -rf /var/lib/apt/lists/*
 
 # 4: انشاء مجلد المشروع 

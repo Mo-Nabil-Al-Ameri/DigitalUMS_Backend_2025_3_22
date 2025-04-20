@@ -19,10 +19,11 @@ class College(models.Model):
         editable=False,  # لمنع التعديل اليدوي
         help_text=_("code (automatically generated from name")
     )
-    dean=models.ForeignKey(
+    dean=models.OneToOneField(
         "users.FacultyMember",
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         verbose_name=_("Dean"),
         help_text=_("Dean of the college")
     )
