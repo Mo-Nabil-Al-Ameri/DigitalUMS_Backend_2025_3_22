@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from universityApps.programs.models import AcademicLevel
-from .models import StudyPlan, SemesterPlan, SemesterCourse,AcademicYear, Semester
+from .models import StudyPlan, SemesterPlan, SemesterCourse,AcademicYear, Semester ,LectureBroadcast,Classroom
 from django import forms
 class SemesterPlanForm(forms.ModelForm):
     class Meta:
@@ -104,3 +104,29 @@ class SemesterAdmin(admin.ModelAdmin):
     search_fields = ('academic_year__name',)
     ordering = ('academic_year', 'semester_type')
     list_select_related = ('academic_year',)
+
+
+@admin.register(LectureBroadcast)
+class LectureBroadcastAdmin(admin.ModelAdmin):
+    list_display = ['schedule', 'status', 'stream_key', 'viewer_count']
+    readonly_fields = ['get_rtmp_url', 'get_hls_url', 'playback_token', 'token_expiry']
+    actions = ['generate_tokens']
+
+    def get_rtmp_url(self, obj):
+        return obj.get_rtmp_url()
+    get_rtmp_url.short_description = "RTMP URL (OBS)"
+
+    def get_hls_url(self, obj):
+        return obj.get_hls_url()
+    get_hls_url.short_description = "HLS Stream URL"
+
+    @admin.action(description="Generate playback token")
+    def generate_tokens(self, request, queryset):
+        for obj in queryset:
+            obj.generate_token()
+
+@admin.register(Classroom)
+class ClassroomAdmin(admin.ModelAdmin):
+    list_display = ['name', 'building', 'floor', 'capacity', 'is_lab', 'is_virtual', 'is_active']
+    list_filter = ['is_lab', 'is_virtual', 'building']
+    search_fields = ['name', 'building']

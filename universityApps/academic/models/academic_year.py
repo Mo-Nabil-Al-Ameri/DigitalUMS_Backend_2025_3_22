@@ -90,6 +90,16 @@ class Semester(models.Model):
     final_exams_end_date = models.DateField(
         verbose_name=_("Final Exams End Date")
     )
+    add_drop_end_date = models.DateField(
+        verbose_name=_("Add/Drop End Date"),
+        blank=True,
+        null=True
+    )
+    withdrawal_deadline = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name=_("Withdrawal Deadline")
+    )
 
     grades_due_date = models.DateField(
         verbose_name=_("Grades Due Date")
@@ -148,3 +158,14 @@ class Semester(models.Model):
         """Check if final exams period is open"""
         today = timezone.now().date()
         return self.final_exams_start_date <= today <= self.final_exams_end_date
+    
+    def is_add_drop_period(self):
+        """Check if add/drop period is open"""
+        today = timezone.now().date()
+        return today <= self.add_drop_end_date
+    
+    def is_withdrawal_allowed(self):
+        """Check if withdrawal is allowed"""
+        today = timezone.now().date()
+        return today <= self.withdrawal_deadline
+    

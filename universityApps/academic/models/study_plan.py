@@ -1,8 +1,6 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.utils import timezone
 from django.core.exceptions import ValidationError
-from django.apps import apps
 from django.db.models import Sum
 class StudyPlan(models.Model):
     """Study Plan Model."""
