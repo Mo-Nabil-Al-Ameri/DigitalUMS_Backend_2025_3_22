@@ -42,6 +42,14 @@ services:
       - web
     env_file:
       - .env
+  nginx-rtmp:
+    image: alfg/nginx-rtmp
+    ports:
+      - "1935:1935" # RTMP
+      - "8080:80" # HLS playback
+    volumes:
+      - ./media/rtmp/hls:/tmp/hls
+      - ./media/rtmp/record:/tmp/record
 
 volumes:
   postgres_data:
