@@ -1,0 +1,365 @@
+{% extends "base_public.html" %}
+{% load static i18n %}
+{% block title %}{% trans "Home" %}{% endblock %}
+{% load static %}
+{% block extra_head %}
+<style>
+    :root {
+        --color-primary: #681212;
+        --color-accent: #d30000;
+        --color-background: #f4f6f9;
+        --color-dark: #333;
+        --color-light: #ffffff;
+    }
+
+    body {
+        background-color: var(--color-background);
+        color: var(--color-dark);
+    }
+
+    h1, h2, h3, h4 {
+        color: var(--color-primary);
+    }
+
+    a, .nav-link {
+        color: var(--color-dark);
+        transition: color 0.3s;
+    }
+
+    a:hover, .nav-link:hover {
+        color: var(--color-accent);
+    }
+
+    .btn-primary {
+        background-color: var(--color-accent);
+        border: none;
+        font-weight: 600;
+    }
+
+    .btn-primary:hover {
+        background-color: #b00000;
+    }
+
+    .btn-outline-primary {
+        color: var(--color-accent);
+        border-color: var(--color-accent);
+    }
+
+    .btn-outline-primary:hover {
+        background-color: var(--color-accent);
+        color: white;
+    }
+
+    footer {
+        background-color: var(--color-primary);
+        color: var(--color-light);
+    }
+
+    .hero-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)),
+                    url("{% static 'images/hero-bg.jpg' %}") no-repeat center center;
+        background-size: cover;
+        color: white;
+        padding: 120px 0;
+        text-align: center;
+    }
+
+    .hero-section h1 {
+        font-size: 3rem;
+        font-weight: bold;
+    }
+
+    .hero-section .btn {
+        background-color: var(--color-accent);
+        border: none;
+    }
+
+    .hero-section .btn:hover {
+        background-color: #b00000;
+    }
+
+    .section-title {
+        margin-bottom: 2.5rem;
+        font-weight: 600;
+    }
+
+    /* Cards and Image Hover */
+    .card {
+        border: none;
+        border-radius: 0.5rem;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .image-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 0.5rem 0.5rem 0 0;
+    }
+
+    .card-img-top {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    .image-container:hover .card-img-top {
+        transform: scale(1.08);
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background-color: rgba(104, 18, 18, 0.6);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        font-weight: bold;
+        font-size: 1rem;
+        text-transform: uppercase;
+    }
+
+    .image-container:hover .overlay {
+        opacity: 1;
+    }
+
+    /* Stats Circles */
+    .stat-box {
+        background-color: #fff;
+        border-radius: 50%;
+        width: 140px;
+        height: 140px;
+        margin: 0 auto 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s;
+    }
+
+    .stat-box:hover {
+        transform: scale(1.05);
+    }
+
+    .stat-box h3 {
+        margin: 0;
+        font-size: 1.8rem;
+        color: var(--color-accent);
+    }
+
+    .stat-box span {
+        font-size: 0.9rem;
+        color: var(--color-dark);
+        margin-top: 5px;
+    }
+
+    @media (max-width: 576px) {
+        .hero-section {
+            padding: 80px 0;
+        }
+
+        .hero-section h1 {
+            font-size: 2rem;
+        }
+    }
+    .icon-box {
+        padding: 20px;
+        border-radius: 10px;
+        background: #fff;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+
+    .icon-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        color: var(--color-primary);
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--color-accent);
+        margin-bottom: 0;
+    }
+    .stat-box {
+        background-color: #fff;
+        transition: transform 0.3s ease;
+      }
+      .stat-box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+      }
+      
+    .stat-label {
+        font-size: 0.95rem;
+        color: var(--color-dark);
+        margin-bottom: 0;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- 🌟 Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <h1>{% trans "Modern Digital Science University" %}</h1>
+        <p class="lead">{% trans "Empowering Education. Digitally Delivered." %}</p>
+        <a href="{% url 'public:admissions' %}" class="btn btn-primary btn-lg mt-3">{% trans "Apply Now" %}</a>
+    </div>
+</section>
+
+<!-- 🎓 Programs Section -->
+<section class="py-5 bg-light text-center">
+    <div class="container">
+        <h2 class="section-title">{% trans "Our Academic Programs" %}</h2>
+        <div class="row">
+            {% for program in programs %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="image-container">
+                        <img src="{% if program.image %}{{ program.image.url }}{% else %}{% static 'images/default-card.jpg' %}{% endif %}" class="card-img-top" alt="{{ program.name }}">
+                        <div class="overlay">{% trans "View Program" %}</div>
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="fw-bold">{{ program.name }}</h5>
+                        <p class="text-muted small">{{ program.description|truncatewords:20 }}</p>
+                        <a href="#" class="btn btn-outline-primary btn-sm mt-2">{% trans "Learn More" %}</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted">{% trans "No academic programs available." %}</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="py-5 {% if LANGUAGE_CODE == 'ar' %}text-end{% else %}text-start{% endif %}" {% if LANGUAGE_CODE == 'ar' %}dir="rtl"{% endif %}>
+    <div class="container">
+      <div class="row justify-content-center g-4">
+  
+        <!-- 👨‍🎓 Students -->
+        <div class="col-12 col-sm-6 col-lg-3 d-flex align-items-stretch">
+          <div class="stat-box text-center w-100 p-4 border rounded-4 h-100">
+            <div class="stat-icon mb-3">
+              <i class="bi bi-mortarboard-fill" style="font-size: 3rem; color: #a32400;"></i>
+            </div>
+            <h2 class="stat-number fs-1 fw-bold mb-0" data-count="6000">0</h2>
+            <p class="stat-label fs-5 fw-medium text-secondary mt-2">{% trans "Students" %}</p>
+          </div>
+        </div>
+  
+        <!-- 👨‍🏫 Faculty Members -->
+        <div class="col-12 col-sm-6 col-lg-3 d-flex align-items-stretch">
+          <div class="stat-box text-center w-100 p-4 border rounded-4 h-100">
+            <div class="stat-icon mb-3">
+              <i class="bi bi-person-badge-fill" style="font-size: 3rem; color: #a32400;"></i>
+            </div>
+            <h2 class="stat-number fs-1 fw-bold mb-0" data-count="250">0</h2>
+            <p class="stat-label fs-5 fw-medium text-secondary mt-2">{% trans "Faculty Members" %}</p>
+          </div>
+        </div>
+  
+        <!-- 📘 Programs -->
+        <div class="col-12 col-sm-6 col-lg-3 d-flex align-items-stretch">
+          <div class="stat-box text-center w-100 p-4 border rounded-4 h-100">
+            <div class="stat-icon mb-3">
+              <i class="bi bi-journal-richtext" style="font-size: 3rem; color: #a32400;"></i>
+            </div>
+            <h2 class="stat-number fs-1 fw-bold mb-0" data-count="50">0</h2>
+            <p class="stat-label fs-5 fw-medium text-secondary mt-2">{% trans "Programs" %}</p>
+          </div>
+        </div>
+  
+        <!-- 🏛️ Colleges -->
+        <div class="col-12 col-sm-6 col-lg-3 d-flex align-items-stretch">
+          <div class="stat-box text-center w-100 p-4 border rounded-4 h-100">
+            <div class="stat-icon mb-3">
+              <i class="bi bi-building" style="font-size: 3rem; color: #a32400;"></i>
+            </div>
+            <h2 class="stat-number fs-1 fw-bold mb-0" data-count="20">0</h2>
+            <p class="stat-label fs-5 fw-medium text-secondary mt-2">{% trans "Colleges" %}</p>
+          </div>
+        </div>
+  
+      </div>
+    </div>
+  </section>
+  
+<!-- 📰 News Section -->
+<section class="py-5 text-center bg-light">
+    <div class="container">
+        <h2 class="section-title">{% trans "University News" %}</h2>
+        <div class="row">
+            {% for news in news_list %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="image-container">
+                        <img src="{% if news.image %}{{ news.image.url }}{% else %}{% static 'images/default-card.jpg' %}{% endif %}" class="card-img-top" alt="{{ news.title }}">
+                        <div class="overlay">{% trans "Read More" %}</div>
+                    </div>
+                    <div class="card-body text-center">
+                        <h5 class="fw-bold">{{ news.title }}</h5>
+                        <p class="text-muted small">{{ news.summary|truncatewords:20 }}</p>
+                        <a href="#" class="btn btn-sm btn-outline-primary mt-2">{% trans "Read More" %}</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted">{% trans "No news articles found." %}</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+  
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".stat-number").forEach(stat => {
+        const updateCount = () => {
+            const target = +stat.getAttribute('data-count');
+            const count = +stat.innerText.replace(/\D/g, '');
+            const inc = target / 40;
+            if (count < target) {
+                stat.innerText = Math.ceil(count + inc);
+                setTimeout(updateCount, 20);
+            } else {
+                stat.innerText = target + "+";
+            }
+        };
+        updateCount();
+    });
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/countup.js/2.0.7/countUp.umd.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('.stat-number').forEach((el) => {
+      const countUp = new countUp.CountUp(el, el.dataset.count);
+      if (!countUp.error) countUp.start();
+    });
+  });
+</script>
+
+{% endblock %}

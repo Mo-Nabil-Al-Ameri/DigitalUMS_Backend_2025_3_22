@@ -1,0 +1,196 @@
+{% load static %}
+{% load static i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+{% load widget_tweaks %}
+
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_CODE == 'ar' %}rtl{% else %}ltr{% endif %}">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}University{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --color-primary: #681212;
+            --color-accent: #d30000;
+            --color-background: #f8f9fa;
+            --color-dark: #333;
+            --color-light: #ffffff;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--color-background);
+        }
+
+        .rtl-body {
+            direction: rtl;
+            text-align: right;
+        }
+
+        .navbar-brand img {
+            height: 40px;
+        }
+
+        .brand-text {
+            color: var(--color-primary);
+            font-weight: bold;
+        }
+
+        .brand-text-sm {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .brand-text-sm {
+                display: inline;
+            }
+        }
+
+        .lang-toggle-btn {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+            font-weight: 500;
+        }
+
+        .lang-toggle-btn:hover {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        footer {
+            background-color: var(--color-primary);
+            color: var(--color-light);
+        }
+
+        footer h5, footer h6 {
+            color: var(--color-light);
+        }
+
+        footer a {
+            color: #eee;
+            transition: color 0.2s;
+        }
+
+        footer a:hover {
+            color: var(--color-accent);
+            text-decoration: underline;
+        }
+
+        .footer-link {
+            color: #eee;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        .footer-link:hover {
+            color: var(--color-accent);
+            text-decoration: underline;
+        }
+
+        .btn-accent {
+            background-color: var(--color-accent);
+            color: white;
+            border: none;
+        }
+
+        .btn-accent:hover {
+            background-color: #b00000;
+        }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="{% if LANGUAGE_CODE == 'ar' %}rtl-body{% endif %}">
+
+<!-- 🔝 Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'public:index' %}">
+            <img src="{% static 'images/hero-bg.jpg' %}" alt="University Logo">
+            <span class="brand-text brand-text-sm">{% trans "Digital University Of Modern Sciences" %}</span>
+        </a>
+
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="{% url 'public:about' %}">{% trans "About" %}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'public:programs' %}">{% trans "Programs" %}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'public:news' %}">{% trans "News" %}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'public:admissions' %}">{% trans "Admissions" %}</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'public:contact' %}">{% trans "Contact" %}</a></li>
+            </ul>
+        </div>
+
+        <!-- Language Toggle Button -->
+        <form action="{% url 'set_language' %}" method="post" class="ms-3 d-inline">
+            {% csrf_token %}
+            {% if LANGUAGE_CODE == 'ar' %}
+                <input type="hidden" name="language" value="en">
+                <button type="submit" class="btn btn-sm lang-toggle-btn">🇬🇧 English</button>
+            {% else %}
+                <input type="hidden" name="language" value="ar">
+                <button type="submit" class="btn btn-sm lang-toggle-btn">🇸🇦 العربية</button>
+            {% endif %}
+        </form>
+    </div>
+</nav>
+
+<!-- 🔲 Page Content -->
+<main class="py-4">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- 🔚 Footer -->
+<footer class="pt-5 pb-4 mt-5 text-white">
+    <div class="container text-center text-md-start">
+        <div class="row gy-4">
+            <div class="col-md-3">
+                <h5 class="fw-bold">{% trans "Digital Science University" %}</h5>
+                <p class="small">{% trans "Empowering digital education for a smarter future." %}</p>
+                <div class="d-flex gap-3 mt-2">
+                    <a href="#" class="text-light"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="text-light"><i class="bi bi-twitter"></i></a>
+                    <a href="#" class="text-light"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" class="text-light"><i class="bi bi-youtube"></i></a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <h6 class="fw-bold mb-3">{% trans "Quick Links" %}</h6>
+                <ul class="list-unstyled small">
+                    <li><a href="{% url 'public:index' %}" class="footer-link">{% trans "Home" %}</a></li>
+                    <li><a href="{% url 'public:admissions' %}" class="footer-link">{% trans "Admissions" %}</a></li>
+                    <li><a href="{% url 'public:programs' %}" class="footer-link">{% trans "Programs" %}</a></li>
+                    <li><a href="{% url 'public:about' %}" class="footer-link">{% trans "About Us" %}</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h6 class="fw-bold mb-3">{% trans "Contact" %}</h6>
+                <p class="small mb-1">📍 {% trans "Main Campus, Digital City, Yemen" %}</p>
+                <p class="small mb-1">📧 info@digitalums.edu.ye</p>
+                <p class="small">📞 +967 777 777 777</p>
+            </div>
+            <div class="col-md-3">
+                <h6 class="fw-bold mb-3">{% trans "Subscribe to News" %}</h6>
+                <form>
+                    <div class="input-group">
+                        <input type="email" class="form-control form-control-sm" placeholder="{% trans 'Email address' %}">
+                        <button class="btn btn-sm btn-accent" type="submit">{% trans "Subscribe" %}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="text-center mt-4 border-top pt-3 small">
+            &copy; {{ now|date:"Y" }} {% trans "Digital Science University" %} — {% trans "All rights reserved." %}
+        </div>
+    </div>
+</footer>
+{% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

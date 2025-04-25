@@ -1,0 +1,44 @@
+{% extends "base_public.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "About Us" %}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .about-section {
+        background-color: #fff;
+        padding: 60px 0;
+    }
+    .about-title {
+        color: var(--color-primary);
+        font-weight: bold;
+        margin-bottom: 30px;
+    }
+    .about-text {
+        color: var(--color-dark);
+        line-height: 1.8;
+        font-size: 1.1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="about-section">
+    <div class="container">
+        <h2 class="about-title text-center">{% trans "About Digital Science University" %}</h2>
+        <div class="row">
+            <div class="col-md-6">
+                <p class="about-text">
+                    {% trans "Digital Science University is a pioneer in delivering modern, technology-driven education in the Arab world. We aim to empower students with the knowledge and tools needed to thrive in the digital age." %}
+                </p>
+                <p class="about-text">
+                    {% trans "Founded in 2025, the university integrates academic excellence with digital innovation, offering top-tier programs that meet international standards." %}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <img src="{% static 'images/about-us.jpg' %}" alt="About Us" class="img-fluid rounded">
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

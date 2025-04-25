@@ -1,0 +1,32 @@
+{% extends "public/base_public.html" %}
+{% load i18n %}
+{% block title %}{% trans "Contact Us" %}{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+    <h2 class="mb-4">{% trans "Contact Us" %}</h2>
+
+    <p>{% trans "Have a question? Get in touch with us via the form below or reach us directly." %}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">{% trans "Name" %}</label>
+            <input type="text" class="form-control" name="name" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">{% trans "Email" %}</label>
+            <input type="email" class="form-control" name="email" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">{% trans "Message" %}</label>
+            <textarea class="form-control" name="message" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-dark">{% trans "Send Message" %}</button>
+    </form>
+
+    <hr class="my-5">
+    <h5>{% trans "Head Office" %}</h5>
+    <p>📍 {% trans "Digital City, Tech Campus" %} <br> ✉️ contact@digitaluni.edu <br> ☎️ +123-456-7890</p>
+</section>
+{% endblock %}

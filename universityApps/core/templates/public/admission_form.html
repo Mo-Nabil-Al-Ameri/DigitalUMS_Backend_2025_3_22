@@ -1,0 +1,190 @@
+{% extends "base_public.html" %}
+{% load static i18n %}
+{% load widget_tweaks %}
+
+{% block title %}{% trans "Apply for Admission" %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" />
+<style>
+  .form-section {
+    border-left: 4px solid var(--color-primary);
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  .btn-custom {
+    background: linear-gradient(45deg, #F5A425, #D30000, #681212) no-repeat center/200% auto;
+    color: #fff;
+    padding: 0.75rem 2rem;
+    font-size: 1.125rem;
+    border: none;
+    border-radius: 50px;
+    transition: 0.3s ease-in-out;
+  }
+  .progress-bar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+  .step {
+    width: 100px;
+    text-align: center;
+    font-weight: bold;
+    color: #bbb;
+    position: relative;
+  }
+  .step.active {
+    color: var(--color-primary);
+  }
+  .step::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    right: -50px;
+    width: 100px;
+    height: 2px;
+    background: #ccc;
+  }
+  .step:last-child::after {
+    display: none;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- ✅ Progress Steps -->
+  <div class="progress-bar">
+    <div class="step {% if step == '1' %}active{% endif %}">1. {% trans "Info" %}</div>
+    <div class="step {% if step == 'verify' %}active{% endif %}">2. {% trans "Verify" %}</div>
+    <div class="step {% if step == '2' %}active{% endif %}">3. {% trans "Qualification" %}</div>
+  </div>
+
+  <h2 class="mb-4 text-center">{% trans "University Admission Application" %}</h2>
+
+  <form method="post" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="step" value="{{ step }}">
+
+    {% if step == '1' %}
+    <!-- 👤 Step 1: Personal Info -->
+    <div class="form-section mb-4">
+      <h5 class="mb-3">{% trans "Personal Information" %}</h5>
+      <div class="row g-3">
+        {% for field in form.visible_fields %}
+          {% if field.name in excluded_fields %}
+          <div class="{% if field.name == 'full_name' %}col-md-12{% else %}col-md-6{% endif %}">
+            <label class="form-label">{{ field.label }}</label>
+            {{ field|add_class:"form-control" }}
+            {% if field.errors %}
+              <div class="text-danger small">{{ field.errors.0 }}</div>
+            {% endif %}
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    <div class="text-center">
+      <button type="submit" class="btn btn-custom btn-lg">
+        {% trans "Next" %}
+      </button>
+          </div>
+
+    {% elif step == 'verify' %}
+    <!-- 📩 Step 2: Email Verification -->
+    <div class="form-section text-center">
+      <h5 class="mb-3">{% trans "Verify Email" %}</h5>
+      <p class="mb-3">{% trans "Enter the verification code sent to your email" %}</p>
+
+      <input type="hidden" name="step" value="verify">
+      <input type="text" name="code" class="form-control w-50 mx-auto mb-3" required>
+
+      {% if error %}
+        <p class="text-danger">{{ error }}</p>
+      {% endif %}
+      {% if message %}
+        <p class="text-success">{{ message }}</p>
+      {% endif %}
+
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a href="{% url 'public:apply_for_admission' %}" class="btn btn-secondary">
+          {% trans "Back" %}
+        </a>
+
+        <button type="submit" class="btn btn-success">
+          {% trans "Verify and Continue" %}
+        </button>
+
+        <a href="{% url 'public:resend_verification_code' %}" class="btn btn-outline-primary">
+          <i class="fa fa-redo"></i> {% trans "Resend Code" %}
+        </a>
+      </div>
+    </div>
+
+    {% elif step == '2' %}
+    <!-- 🎓 Step 3: Qualification and Program -->
+    <div class="form-section mb-4">
+      <h5 class="mb-3">{% trans "Previous Qualification & Program Selection" %}</h5>
+      <div class="row g-3">
+        {% for field in form.visible_fields %}
+          {% if field.name not in excluded_fields %}
+            <div class="{% if field.name == 'program' %}col-md-12{% else %}col-md-6{% endif %}">
+              <label class="form-label">{{ field.label }}</label>
+              {% if field.name == 'program' %}
+                {{ field|add_class:"form-select" }}
+              {% elif 'date' in field.name %}
+                {{ field|add_class:"form-control flatpickr" }}
+              {% else %}
+                {{ field|add_class:"form-control" }}
+              {% endif %}
+              {% if field.errors %}
+                <div class="text-danger small">{{ field.errors.0 }}</div>
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- 📎 Documents Upload -->
+    <div class="form-section mb-4">
+      <h5 class="mb-3">{% trans "Upload Documents" %}</h5>
+      {{ document_formset.management_form }}
+      {% for form in document_formset %}
+        <div class="row g-3 mb-2">
+          <div class="col-md-4">{{ form.document_type|add_class:"form-select" }}</div>
+          <div class="col-md-4">{{ form.title|add_class:"form-control" }}</div>
+          <div class="col-md-4">{{ form.file|add_class:"form-control" }}</div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="text-center d-flex justify-content-between">
+      <a href="{% url 'public:apply_for_admission' %}?step=verify" class="btn btn-secondary">
+        {% trans "Back" %}
+      </a>
+      <button type="submit" class="btn btn-primary btn-lg" style="background-color:#741A27;">
+        {% trans "Submit Application" %}
+      </button>
+    </div>
+    {% endif %}
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ar.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    flatpickr(".flatpickr", {
+      dateFormat: "Y-m-d",
+      locale: "{{ LANGUAGE_CODE|default:'ar' }}"
+    });
+  });
+</script>
+{% endblock %}

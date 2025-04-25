@@ -1,0 +1,72 @@
+{% extends "base_public.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Academic Programs" %}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .programs-section {
+        padding: 80px 0;
+    }
+
+    .program-card {
+        background: #fff;
+        border: none;
+        border-radius: 0.5rem;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease;
+    }
+
+    .program-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .image-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 0.5rem 0.5rem 0 0;
+    }
+
+    .card-img-top {
+        height: 180px;
+        object-fit: cover;
+        width: 100%;
+        transition: transform 0.3s ease;
+    }
+
+    .image-container:hover .card-img-top {
+        transform: scale(1.05);
+    }
+
+    .card-body {
+        padding: 1.25rem;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="programs-section">
+    <div class="container">
+        <h1 class="text-center mb-5 fw-bold text-primary">{% trans "Our Academic Programs" %}</h1>
+        <div class="row">
+            {% for program in programs %}
+            <div class="col-md-4 mb-4">
+                <div class="card program-card h-100">
+                    <div class="image-container">
+                        <img src="{% if program.image %}{{ program.image.url }}{% else %}{% static 'images/default-card.jpg' %}{% endif %}" class="card-img-top" alt="{{ program.name }}">
+                    </div>
+                    <div class="card-body">
+                        <h5 class="fw-bold">{{ program.name }}</h5>
+                        <p class="text-muted small">{{ program.description|truncatewords:25 }}</p>
+                        <a href="#" class="btn btn-outline-primary btn-sm mt-2">{% trans "Learn More" %}</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted text-center">{% trans "No academic programs available." %}</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

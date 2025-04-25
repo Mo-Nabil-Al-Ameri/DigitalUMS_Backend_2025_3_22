@@ -1,0 +1,87 @@
+{% extends "base_public.html" %}
+{% load i18n static %}
+
+{% block title %}{% trans "Admissions" %}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .admissions-hero {
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+                    url("{% static 'images/admissions-banner.jpg' %}") no-repeat center center;
+        background-size: cover;
+        color: white;
+        padding: 100px 0;
+        text-align: center;
+    }
+
+    .admissions-section {
+        background-color: #fff;
+        padding: 60px 0;
+    }
+
+    .admissions-title {
+        color: var(--color-primary);
+        font-weight: bold;
+        margin-bottom: 30px;
+    }
+
+    .admissions-text {
+        font-size: 1.1rem;
+        color: var(--color-dark);
+        line-height: 1.8;
+    }
+
+    .step {
+        padding: 20px;
+        background: #f9f9f9;
+        border-left: 5px solid var(--color-accent);
+        margin-bottom: 20px;
+        border-radius: 6px;
+    }
+
+    .step h5 {
+        color: var(--color-primary);
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- 🎓 Admissions Hero -->
+<section class="admissions-hero">
+    <div class="container">
+        <h1 class="display-4">{% trans "Join Our University" %}</h1>
+        <p class="lead">{% trans "Apply today and take the next step in your academic journey." %}</p>
+        <a href="{%url "public:apply_for_admission" %}" class="btn btn-accent btn-lg mt-3">{% trans "Start Application" %}</a>
+    </div>
+</section>
+
+<!-- 📝 Admissions Info -->
+<section class="admissions-section">
+    <div class="container">
+        <h2 class="admissions-title text-center">{% trans "Admission Process" %}</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="step">
+                    <h5>{% trans "1. Choose Your Program" %}</h5>
+                    <p class="admissions-text">{% trans "Explore our wide range of programs and select the one that matches your career goals." %}</p>
+                </div>
+                <div class="step">
+                    <h5>{% trans "2. Submit Application" %}</h5>
+                    <p class="admissions-text">{% trans "Fill out the online admission form and attach the required documents." %}</p>
+                </div>
+                <div class="step">
+                    <h5>{% trans "3. Application Review" %}</h5>
+                    <p class="admissions-text">{% trans "Our admissions team will review your application and notify you of the outcome." %}</p>
+                </div>
+                <div class="step">
+                    <h5>{% trans "4. Final Enrollment" %}</h5>
+                    <p class="admissions-text">{% trans "Once accepted, complete your enrollment by paying the tuition and confirming your seat." %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
