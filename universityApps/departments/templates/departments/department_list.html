@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}
+<div class="d-flex justify-content-between align-items-center">
+    <span>📚 الاقسام</span>
+    <div>
+        <a href="{% url 'add_department'%}" class="btn btn-success btn-sm me-2">➕ إضافة قسم</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h3 class="mb-4 text-primary">جميع الاقسام في الجامعة</h3>
+    <div class="row">
+        {% for department in departments %}
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ department.name }}</h5>
+                    <p class="card-text">{{ department.description|default:"لا يوجد وصف." }}</p>
+                    <a href="{% url 'edit_department' department.dept_no %}" class="btn btn-warning btn-sm">✏️ تعديل الأقسام</a>
+                    <a href="{% url 'department_detail' department.dept_no %}" class="btn btn-outline-primary btn-sm">عرض التفاصيل</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-muted">لا توجد أقسام حالياً.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

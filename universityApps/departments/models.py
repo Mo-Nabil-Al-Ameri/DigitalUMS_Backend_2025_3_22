@@ -54,12 +54,12 @@ class Department(models.Model):
     )
     image = models.ImageField(
         blank=True,
-        null=True,  
+        null=True, 
         upload_to=department_image_path,
         verbose_name=_('Department Image'),
         help_text=_('Image of the department'),
     )
-    college = models.OneToOneField(
+    college = models.ForeignKey(
         'colleges.College',
         on_delete=models.CASCADE,
         verbose_name=_('College'),

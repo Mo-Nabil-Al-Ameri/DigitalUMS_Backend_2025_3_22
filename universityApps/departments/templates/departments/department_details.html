@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}تفاصيل القسم{% endblock %}
+
+{% block content %}
+<style>
+    body {
+        font-family: 'Cairo', sans-serif;
+        direction: rtl;
+        background-color: #f5f7fa;
+    }
+
+    .dashboard-card {
+        border-radius: 12px;
+        background-color: #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .dashboard-card h3, .dashboard-card h4, .dashboard-card h5 {
+        font-weight: bold;
+        color: #681212;
+    }
+
+    .text-secondary {
+        color: #444;
+    }
+
+    .badge {
+        font-size: 0.8rem;
+        padding: 0.35em 0.6em;
+        border-radius: 6px;
+    }
+
+    .department-image {
+        max-width: 150px;
+        max-height: 150px;
+        object-fit: contain;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+</style>
+
+<div class="container py-5">
+
+    <div class="dashboard-card">
+        <div class="row">
+            <div class="col-md-9">
+                <h3>{{ department.name }}</h3>
+                <hr>
+                <p><strong>الرقم:</strong> {{ department.dept_no|stringformat:"04d" }}</p>
+                <p><strong>الكود:</strong> {{ department.code }}</p>
+                <p><strong>النوع:</strong> {{ department.get_type_display }}</p>
+                <p><strong>الوصف:</strong> {{ department.description|default:"لا يوجد وصف." }}</p>
+                <p><strong>الكلية:</strong> {{ department.college.name|default:"لا يوجد" }}</p>
+                <p><strong>رئيس القسم:</strong> {{ department.head.get_full_name|default:"لم يتم تعيين رئيس" }}</p>
+                <p><strong>الرؤية:</strong> {{ department.department_vision|default:"لا توجد" }}</p>
+                <p><strong>الرسالة:</strong> {{ department.depaertment_message|default:"لا توجد" }}</p>
+            </div>
+            <div class="col-md-3 text-center">
+                {% if department.image %}
+                    <img src="{{ department.image.url }}" alt="صورة القسم" class="department-image mt-3">
+                {% else %}
+                    <p class="text-muted mt-5">لا توجد صورة</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if academic_program %}
+    <div class="section-header">
+        <h4 class="text-secondary">البرامج الأكاديمية التابعة لهذا القسم</h4>
+    </div>
+
+    {% for program in academic_program %}
+    <div class="dashboard-card border-start">
+        <h5>🎓 {{ program.name }}</h5>
+        <p>📘 الدرجة العلمية: {{ program.get_degree_level_display }}</p>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p class="text-muted">لا توجد برامج أكاديمية مرتبطة حالياً.</p>
+    {% endif %}
+
+</div>
+{% endblock %}

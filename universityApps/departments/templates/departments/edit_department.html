@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+<div class="d-flex justify-content-between align-items-center">
+    <span>✏️ تعديل القسم: {{ department.name }}</span>
+    <a href="{% url 'department_list' %}" class="btn btn-secondary btn-sm">🔙 العودة للقائمة</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">تعديل بيانات القسم</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" class="custom-form">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <div class="row">
+                    {% for field in form %}
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">{{ field.label_tag }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                        {% endif %}
+                        {% if field.errors %}
+                        <div class="text-danger">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-warning">💾 حفظ التعديلات</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
