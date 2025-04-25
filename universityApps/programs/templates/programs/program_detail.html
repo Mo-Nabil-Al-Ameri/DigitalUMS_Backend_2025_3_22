@@ -2,18 +2,86 @@
 {% block title %}تفاصيل البرنامج الأكاديمي{% endblock %}
 
 {% block content %}
+<style>
+    body {
+        font-family: 'Cairo', sans-serif;
+        direction: rtl;
+        background-color: #f5f7fa;
+    }
+
+    .dashboard-card {
+        border-radius: 12px;
+        background-color: #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .dashboard-card h3, .dashboard-card h4, .dashboard-card h5 {
+        font-weight: bold;
+        color: #681212;
+    }
+
+    .text-secondary {
+        color: #444;
+    }
+
+    .list-group-item {
+        background-color: #fafafa;
+        border: none;
+        border-bottom: 1px solid #eee;
+        font-size: 0.95rem;
+    }
+
+    .list-group-item:last-child {
+        border-bottom: none;
+    }
+
+    .badge {
+        font-size: 0.8rem;
+        padding: 0.35em 0.6em;
+        border-radius: 6px;
+    }
+
+    .btn-outline-danger {
+        color: #681212;
+        border-color: #681212;
+        font-weight: 500;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #681212;
+        color: white;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .border-start {
+        border-right: 4px solid #681212 !important;
+        border-left: none !important;
+    }
+
+    .text-muted {
+        color: #888;
+        font-style: italic;
+    }
+</style>
+
 <div class="container py-5">
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h3 class="text-primary">{{ program.name }}</h3>
-            <hr>
-            <p><strong>الوصف:</strong> {{ program.description|default:"لا يوجد وصف." }}</p>
-            <p><strong>الدرجة العلمية:</strong> {{ program.get_degree_level_display }}</p>
-            <p><strong>القسم:</strong> {{ program.department.name }}</p>
-        </div>
+    <div class="dashboard-card">
+        <h3>{{ program.name }}</h3>
+        <hr>
+        <p><strong>الوصف:</strong> {{ program.description|default:"لا يوجد وصف." }}</p>
+        <p><strong>الدرجة العلمية:</strong> {{ program.get_degree_level_display }}</p>
+        <p><strong>القسم:</strong> {{ program.department.name }}</p>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="section-header">
         <h4 class="text-secondary">المستويات الأكاديمية والفصول</h4>
         <a href="{% url 'export_program_pdf' program.id %}" class="btn btn-outline-danger">
             🖨️ تحميل كـ PDF
@@ -21,37 +89,35 @@
     </div>
 
     {% for level in program_levels %}
-    <div class="card border-start border-4 border-primary mb-4">
-        <div class="card-body">
-            <h5 class="card-title">🎓 المستوى {{ level.level_number }}: {{ level.name }}</h5>
-            <p class="card-text">📘 الساعات المطلوبة: {{ level.required_credits }}</p>
+    <div class="dashboard-card border-start">
+        <h5>🎓 المستوى {{ level.level_number }}: {{ level.name }}</h5>
+        <p>📘 الساعات المطلوبة: {{ level.required_credits }}</p>
 
-            {% with semesters=level.get_semesters %}
-                {% if semesters %}
-                    {% for semester in semesters %}
-                        <div class="mt-4">
-                            <h6 class="text-primary">📘 {{ semester.get_semester_type_display }} - {{ semester.name }}</h6>
-                            {% if semester.semester_courses.all %}
-                                <ul class="list-group">
-                                    {% for course in semester.semester_courses.all %}
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        {{ course.code }} - {{ course.course.name }}
-                                        {% if not course.is_required %}
-                                        <span class="badge bg-warning text-dark">اختياري</span>
-                                        {% endif %}
-                                    </li>
-                                    {% endfor %}
-                                </ul>
-                            {% else %}
-                                <p class="text-muted">لا توجد مقررات في هذا الفصل.</p>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="text-muted">لا توجد فصول لهذا المستوى.</p>
-                {% endif %}
-            {% endwith %}
-        </div>
+        {% with semesters=level.get_semesters %}
+            {% if semesters %}
+                {% for semester in semesters %}
+                <div class="mt-4">
+                    <h6 class="text-primary">📘 {{ semester.get_semester_type_display }} - {{ semester.name }}</h6>
+                    {% if semester.semester_courses.all %}
+                        <ul class="list-group">
+                            {% for course in semester.semester_courses.all %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ course.code }} - {{ course.course.name }}
+                                {% if not course.is_required %}
+                                <span class="badge bg-warning text-dark">اختياري</span>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">لا توجد مقررات في هذا الفصل.</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted">لا توجد فصول لهذا المستوى.</p>
+            {% endif %}
+        {% endwith %}
     </div>
     {% empty %}
     <p class="text-muted">لا توجد مستويات حالياً.</p>

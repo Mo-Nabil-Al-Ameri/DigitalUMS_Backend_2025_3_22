@@ -37,6 +37,11 @@ class AcademicProgram(models.Model):
         help_text=_("Full name of the program"),
         editable=False
     )
+    image = models.ImageField(
+        upload_to='program_images',
+        verbose_name=_("Program Image"),
+        help_text=_("Image of the program")
+    )
 
     description = models.TextField(
         blank=True,
@@ -165,7 +170,6 @@ class ProgramSettings(models.Model):
         verbose_name=_("Maximum Summer Credits"),
         help_text=_("Maximum number of credits allowed for the summer semester")
     )
-
     #Graduation rquirement 
     min_cgpa_required = models.DecimalField(
         max_digits=5,
