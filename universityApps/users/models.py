@@ -194,6 +194,8 @@ class Student(models.Model):
         GRADUTATED = 'graduated', _('Graduated')
         SUSPENDED = 'suspended', _('Suspended')
         Dismissed = 'dismissed', _('Dismissed')
+        WITHDRAWN = 'withdrawn', _('Withdrawn')
+
     #User Account
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student', verbose_name=_("User"))
     # Student Information

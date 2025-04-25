@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Instructor Dashboard{% endblock %}
+{% block content %}
+<div class="container">
+    <h3 class="mb-4">👨‍🏫 Welcome, {{ user.get_full_name }}!</h3>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">📚 Courses</h5>
+                    <p class="card-text">Manage your assigned courses and teaching materials.</p>
+                    <a href="#" class="btn btn-sm custom-button">View Courses</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">📺 Live Sessions</h5>
+                    <p class="card-text">Start or manage live class broadcasts.</p>
+                    <a href="#" class="btn btn-sm custom-button">Go Live</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">📅 Schedule</h5>
+                    <p class="card-text">View and organize your lecture schedule.</p>
+                    <a href="#" class="btn btn-sm custom-button">Manage Schedule</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
